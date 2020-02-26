@@ -1,2 +1,2 @@
-# -ASR-for-Hindi
+# ASR-for-Hindi
 Creating an Automatic Speech Recognition Pipeline for Hindi.
