@@ -1,0 +1,28 @@
+./path.sh
+./Create_ngram_LM.sh
+utils/fix_data_dir.sh data/train
+utils/fix_data_dir.sh data/test
+steps/make_mfcc.sh --nj 5 data/train exp/make_mfcc/train mfcc
+steps/make_mfcc.sh --nj 5 data/test exp/make_mfcc/test mfcc
+steps/compute_cmvn_stats.sh data/train exp/make_mfcc/train mfcc
+steps/compute_cmvn_stats.sh data/test exp/make_mfcc/test mfcc
+utils/validate_data_dir.sh data/train
+utils/validate_data_dir.sh data/test
+steps/train_mono.sh --nj 5 data/train data/lang_bigram exp/mono
+utils/mkgraph.sh --mono data/lang_bigram exp/mono exp/mono/graphD
+steps/decode.sh --nj 5 exp/mono/graph data/test exp/mono/decode
+cd exp/mono/decode
+cat wer_*|grep "WER"| sort -n
+cd ../../..
+steps/align_si.sh --boost-silence 1.25 --nj 5 data/train data/lang_bigram exp/mono exp/mono_alpha
+steps/train_deltas.sh 2000 16000 data/train data/lang_bigram exp/mono_alpha exp/tri
+utils/mkgraph.sh data/lang_bigram exp/tri exp/tri/graph
+steps/decode.sh --nj 5 exp/tri/graph data/test exp/tri/decode
+cd exp/tri/decode
+cat wer_*|grep "WER"| sort -n
+cd ../../..
+steps/align_si.sh --nj 5 data/train data/lang_bigram exp/tri exp/tri_alpha
+steps/nnet2/train_tanh.sh --initial-learning-rate 0.0075 --final-learning-rate 0.001 --num-hidden-layers 2 --minibatch-size 64 --hidden-layer-dim 512 --num-jobs-nnet 10 --num-epochs 15 data/train data/lang_bigram exp/tri_alpha exp/DNN
+steps/nnet2/decode.sh --nj 4 exp/tri/graph data/test exp/DNN/decode
+cd exp/DNN/decode
+cat wer_*|grep "WER"| sort -n
