@@ -1,6 +1,4 @@
-chmod +x path.sh
 chmod +x Create_ngram_LM.sh
-./path.sh
 ./Create_ngram_LM.sh
 utils/fix_data_dir.sh data/train
 utils/fix_data_dir.sh data/test
