@@ -15,7 +15,7 @@ cd exp/mono/decode
 cat wer_*|grep "WER"| sort -n
 cd ../../..
 steps/align_si.sh --boost-silence 1.25 --nj 5 data/train data/lang_bigram exp/mono exp/mono_alpha
-steps/train_deltas.sh 2000 16000 data/train data/lang_bigram exp/mono_alpha exp/tri
+steps/train_deltas.sh 1980 16000 data/train data/lang_bigram exp/mono_alpha exp/tri
 utils/mkgraph.sh data/lang_bigram exp/tri exp/tri/graph
 steps/decode.sh --nj 5 exp/tri/graph data/test exp/tri/decode
 cd exp/tri/decode
